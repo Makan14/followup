@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau contact — FollowUp{% endblock %}
+
+{% block topbar_title %}<span class="app-topbar__title">Nouveau contact</span>{% endblock %}
+
+{% block body %}
+<div class="fu-page fu-page--narrow">
+    <header class="fu-heading">
+        <div>
+            <p class="fu-heading__eyebrow">Contacts</p>
+            <h1 class="fu-heading__title">Nouveau contact</h1>
+            <p class="fu-heading__sub">Renseignez la fiche du prospect et sa prochaine relance.</p>
+        </div>
+        <div class="fu-heading__actions">
+            <a class="fu-btn fu-btn--ghost" href="{{ path('app_contact_index') }}">Retour à la liste</a>
+        </div>
+    </header>
+
+    <div class="fu-panel">
+        {% include 'contact/_form.html.twig' %}
+    </div>
+</div>
+{% endblock %}

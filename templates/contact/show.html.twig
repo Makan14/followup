@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ contact.nom }} — FollowUp{% endblock %}
+
+{% block topbar_title %}<span class="app-topbar__title">Fiche contact</span>{% endblock %}
+
+{% block body %}
+<div class="fu-page">
+    <header class="fu-heading">
+        <div class="fu-heading__identity">
+            <span class="fu-heading__avatar fu-table__avatar--{{ contact.statut.value }}">{{ contact.nom|slice(0, 1)|upper }}</span>
+            <div>
+                <h1 class="fu-heading__title">{{ contact.nom }}</h1>
+                <p class="fu-heading__sub">
+                    <span class="fu-badge fu-badge--{{ contact.statut.value }}">{{ contact.statut.label }}</span>
+                    {{ contact.entreprise ?: 'Indépendant' }}
+                </p>
+            </div>
+        </div>
+        <div class="fu-heading__actions">
+            <a class="fu-btn fu-btn--ghost" href="{{ path('app_contact_index') }}">Retour</a>
+            <a class="fu-btn fu-btn--primary" href="{{ path('app_contact_edit', {id: contact.id}) }}">Modifier</a>
+            <form method="post" action="{{ path('app_contact_delete', {id: contact.id}) }}" onsubmit="return confirm('Supprimer ce contact ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ contact.id) }}">
+                <button class="fu-btn fu-btn--danger" type="submit">Supprimer</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="fu-detail-grid">
+        <section class="fu-panel">
+            <header class="fu-panel__head">
+                <h2 class="fu-panel__title">Informations</h2>
+            </header>
+            <dl class="fu-detail">
+                <dt>Email</dt>
+                <dd><a href="mailto:{{ contact.email }}">{{ contact.email }}</a></dd>
+                <dt>Téléphone</dt>
+                <dd>{{ contact.telephone ?: '—' }}</dd>
+                <dt>Entreprise</dt>
+                <dd>{{ contact.entreprise ?: '—' }}</dd>
+                <dt>Prochaine relance</dt>
+                <dd>{{ contact.dateProchaineRelance ? contact.dateProchaineRelance|date('d/m/Y') : '—' }}</dd>
+                <dt>Créé le</dt>
+                <dd>{{ contact.dateCreation|date('d/m/Y H:i') }}</dd>
+                <dt>Mis à jour le</dt>
+                <dd>{{ contact.dateMiseAJour ? contact.dateMiseAJour|date('d/m/Y H:i') : '—' }}</dd>
+            </dl>
+        </section>
+
+        <section class="fu-panel">
+            <header class="fu-panel__head">
+                <h2 class="fu-panel__title">Notes</h2>
+            </header>
+            {% if contact.notes %}
+                <p class="fu-notes">{{ contact.notes|e|nl2br }}</p>
+            {% else %}
+                <p class="fu-empty">Aucune note pour ce contact.</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

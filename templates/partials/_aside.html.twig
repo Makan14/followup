@@ -1,0 +1,56 @@
+{#
+    Colonne latérale de widgets.
+    Paramètres attendus :
+      - counts : tableau des compteurs par statut
+      - statuts : cas de l'énumération StatutContact
+      - relances_today / relances_late : entiers
+      - total : entier
+
+    Les variables absentes prennent une valeur par défaut afin que le
+    widget reste utilisable sur toutes les pages.
+#}
+{% set counts = counts|default({}) %}
+{% set total = total|default(total_global|default(0)) %}
+{% set relances_today = relances_today|default(0) %}
+{% set relances_late = relances_late|default(0) %}
+<aside class="app-aside">
+    <section class="fu-panel">
+        <header class="fu-panel__head">
+            <h2 class="fu-panel__title">Relances</h2>
+            <a class="fu-panel__link" href="{{ path('app_contact_index', {tri: 'date_relance', sens: 'asc'}) }}">Voir tout</a>
+        </header>
+        <div class="fu-relance-row">
+            <span class="fu-relance-row__value">{{ relances_today }}</span>
+            <span class="fu-relance-row__label">Aujourd'hui</span>
+        </div>
+        <div class="fu-relance-row">
+            <span class="fu-relance-row__value fu-relance-row__value--alert">{{ relances_late }}</span>
+            <span class="fu-relance-row__label">En retard</span>
+        </div>
+        <a class="fu-btn fu-btn--primary fu-btn--block" href="{{ path('app_contact_index', {statut: 'relance'}) }}">Traiter les relances</a>
+    </section>
+
+    <section class="fu-panel">
+        <header class="fu-panel__head">
+            <h2 class="fu-panel__title">Statuts</h2>
+            <span class="fu-panel__hint">{{ total }} contact{{ total > 1 ? 's' : '' }}</span>
+        </header>
+        <div class="fu-chips">
+            {% for statut in statuts %}
+                <a class="fu-chip fu-chip--{{ statut.value }} {{ app.request.query.get('statut') == statut.value ? 'is-active' : '' }}"
+                   href="{{ path('app_contact_index', {statut: statut.value}) }}">
+                    {{ statut.label }}<span class="fu-chip__count">{{ counts[statut.value]|default(0) }}</span>
+                </a>
+            {% endfor %}
+        </div>
+        <a class="fu-panel__reset" href="{{ path('app_contact_index') }}">Réinitialiser les filtres</a>
+    </section>
+
+    <section class="fu-teaser">
+        <span class="fu-teaser__shape" aria-hidden="true"></span>
+        <div class="fu-teaser__content">
+            <p class="fu-teaser__title">Exportez vos<br>contacts filtrés</p>
+            <a class="fu-btn fu-btn--ghost" href="{{ path('app_contact_export', app.request.query.all) }}">Export CSV</a>
+        </div>
+    </section>
+</aside>

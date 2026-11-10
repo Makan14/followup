@@ -1,0 +1,65 @@
+{#
+    Rail vertical de navigation, sur le modèle du design fourni :
+    pastille de marque en haut, icônes principales, séparateur, puis
+    boutons secondaires en bas de colonne.
+#}
+{% set route_courante = app.request.attributes.get('_route') %}
+<aside class="app-rail">
+    <a class="app-rail__brand" href="{{ path('app_dashboard') }}" aria-label="FollowUp, accueil">F</a>
+
+    <nav class="app-rail__nav" aria-label="Navigation principale">
+        <a class="app-rail__link {{ route_courante == 'app_dashboard' ? 'is-active' : '' }}" href="{{ path('app_dashboard') }}" title="Tableau de bord">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+            </svg>
+            <span class="visually-hidden">Tableau de bord</span>
+        </a>
+        <a class="app-rail__link {{ route_courante starts with 'app_contact' and route_courante != 'app_contact_export' ? 'is-active' : '' }}" href="{{ path('app_contact_index') }}" title="Contacts">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <circle cx="9" cy="8" r="3.2"></circle>
+                <path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path>
+                <path d="M16 5.5a3 3 0 0 1 0 5.6"></path>
+                <path d="M17.5 14.6A5 5 0 0 1 20.5 19"></path>
+            </svg>
+            <span class="visually-hidden">Contacts</span>
+        </a>
+        <a class="app-rail__link {{ route_courante == 'app_contact_new' ? 'is-active' : '' }}" href="{{ path('app_contact_new') }}" title="Nouveau contact">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="3.5" y="3.5" width="17" height="17" rx="4"></rect>
+                <path d="M12 8v8M8 12h8"></path>
+            </svg>
+            <span class="visually-hidden">Nouveau contact</span>
+        </a>
+        <a class="app-rail__link {{ route_courante == 'app_contact_export' ? 'is-active' : '' }}" href="{{ path('app_contact_export') }}" title="Export CSV">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M12 3v11"></path>
+                <path d="M8 10.5 12 14.5 16 10.5"></path>
+                <path d="M4 18.5V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5"></path>
+            </svg>
+            <span class="visually-hidden">Export CSV</span>
+        </a>
+    </nav>
+
+    <span class="app-rail__divider" aria-hidden="true"></span>
+
+    <div class="app-rail__bottom">
+        <a class="app-rail__link" href="{{ path('app_contact_index', {statut: 'relance', tri: 'date_relance', sens: 'asc'}) }}" title="Relances à venir">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect>
+                <path d="M8 3v4M16 3v4M3.5 10h17"></path>
+            </svg>
+            <span class="visually-hidden">Relances à venir</span>
+        </a>
+        <a class="app-rail__link app-rail__link--accent" href="{{ path('app_logout') }}" title="Déconnexion">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"></path>
+                <path d="M10 8 6 12l4 4"></path>
+                <path d="M6 12h9"></path>
+            </svg>
+            <span class="visually-hidden">Déconnexion</span>
+        </a>
+    </div>
+</aside>

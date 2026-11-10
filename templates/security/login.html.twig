@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion — FollowUp{% endblock %}
+
+{% block body %}
+<div class="fu-login">
+    <section class="fu-login__card">
+        <div class="fu-login__brand">
+            <span class="app-rail__brand app-rail__brand--static">F</span>
+            <span class="fu-login__brand-name">FollowUp</span>
+        </div>
+
+        <h1 class="fu-login__title">Connexion</h1>
+        <p class="fu-login__sub">Accédez au mini-CRM de suivi de prospects.</p>
+
+        {% if error %}
+            <div class="alert alert-danger app-alert" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}" class="fu-form">
+            <div class="fu-form__field">
+                <label for="username" class="fu-label">Email</label>
+                <input type="email" id="username" name="_username" class="fu-input" value="{{ last_username }}" required autofocus autocomplete="username">
+            </div>
+            <div class="fu-form__field">
+                <label for="password" class="fu-label">Mot de passe</label>
+                <input type="password" id="password" name="_password" class="fu-input" required autocomplete="current-password">
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <button class="fu-btn fu-btn--primary fu-btn--block" type="submit">Se connecter</button>
+        </form>
+
+        <div class="fu-login__demo">
+            <span class="fu-login__demo-label">Compte de démonstration</span>
+            <code>admin@followup.local</code>
+            <code>Demo1234!</code>
+        </div>
+    </section>
+
+    <aside class="fu-login__visual" aria-hidden="true">
+        <div class="fu-login__visual-text">
+            <p class="fu-hero__eyebrow">Mini-CRM</p>
+            <p class="fu-login__visual-title">Suivez chaque<br>prospect jusqu'à<br>la signature</p>
+        </div>
+        <span class="fu-login__orb fu-login__orb--blue"></span>
+        <span class="fu-login__orb fu-login__orb--coral"></span>
+    </aside>
+</div>
+{% endblock %}

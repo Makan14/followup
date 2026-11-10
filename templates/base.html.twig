@@ -1,0 +1,103 @@
+{#
+    Gabarit principal de FollowUp.
+
+    Structure inspirée du design fourni : un cadre arrondi posé sur un fond
+    neutre, un rail vertical d'icônes à gauche, une zone de contenu centrale
+    et, pour les pages larges, une colonne latérale de widgets.
+#}
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}FollowUp{% endblock %}</title>
+    <script>
+        // Applique le thème choisi avant le premier affichage pour éviter un flash.
+        try {
+            document.documentElement.dataset.bsTheme = localStorage.getItem('followup-theme') || 'dark';
+        } catch (e) {
+            document.documentElement.dataset.bsTheme = 'dark';
+        }
+    </script>
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+{% set avec_rail = app.user is not null %}
+<body class="app-body{{ avec_rail ? ' app-body--shell' : '' }}">
+    <div class="app-shell{{ avec_rail ? '' : ' app-shell--plain' }}">
+        {% if avec_rail %}
+            {% include 'partials/_sidebar.html.twig' %}
+        {% endif %}
+
+        <div class="app-main">
+            {% if avec_rail %}
+                <header class="app-topbar">
+                    <div class="app-topbar__inner">
+                        {% block topbar_title %}{% endblock %}
+
+                        <form class="app-search d-none d-md-flex" role="search" method="get" action="{{ path('app_contact_index') }}">
+                            <svg class="app-search__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+                            </svg>
+                            <label class="visually-hidden" for="recherche-globale">Rechercher un contact</label>
+                            <input id="recherche-globale" class="app-search__input" type="search" name="q"
+                                   value="{{ app.request.query.get('q') }}"
+                                   placeholder="Rechercher un contact, une entreprise...">
+                        </form>
+
+                        <div class="app-topbar__actions">
+                            <a class="icon-btn" href="{{ path('app_contact_index', {statut: 'relance'}) }}" aria-label="Relances à traiter" title="Relances à traiter">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"></path>
+                                    <path d="M13.7 21a2 2 0 0 1-3.4 0"></path>
+                                </svg>
+                                <span class="icon-btn__dot" aria-hidden="true"></span>
+                            </a>
+                            <button id="theme-toggle" class="icon-btn" type="button" aria-label="Changer de thème" title="Changer de thème">
+                                <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8Z"></path>
+                                </svg>
+                                <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="4"></circle>
+                                    <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"></path>
+                                </svg>
+                            </button>
+
+                            <div class="app-user">
+                                <span class="app-user__avatar">{{ app.user.userIdentifier|slice(0, 1)|upper }}</span>
+                                <span class="app-user__meta d-none d-lg-flex">
+                                    <span class="app-user__name">{{ app.user.userIdentifier|split('@')|first|capitalize }}</span>
+                                    <span class="app-user__role">Administrateur</span>
+                                </span>
+                                <a class="app-user__logout" href="{{ path('app_logout') }}">Déconnexion</a>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            {% endif %}
+
+            <main class="app-content">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show app-alert" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                {% block body %}{% endblock %}
+            </main>
+
+            <footer class="app-footer-small">
+                FollowUp — Mini-CRM de démonstration. Données fictives.
+            </footer>
+        </div>
+    </div>
+
+    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('assets/js/app.js') }}"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

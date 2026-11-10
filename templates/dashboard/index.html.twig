@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard — FollowUp{% endblock %}
+
+{% block topbar_title %}<span class="app-topbar__title">Tableau de bord</span>{% endblock %}
+
+{% block body %}
+{% set statuts_actifs = ['nouveau', 'contacte', 'relance'] %}
+{% set gagnes = counts['gagne'] %}
+
+<div class="fu-page fu-page--with-aside">
+    <div class="fu-page__main">
+        {# Bandeau principal : mise en avant de l'activité du jour. #}
+        <section class="fu-hero">
+            <div class="fu-hero__text">
+                <p class="fu-hero__eyebrow">Bonjour {{ app.user.userIdentifier|split('@')|first|capitalize }}</p>
+                <h1 class="fu-hero__title">Vos prospects,<br>au même endroit</h1>
+                <p class="fu-hero__desc">
+                    {{ total }} contacts suivis, {{ counts['nouveau'] }} nouveaux et {{ relances_today }} relances prévues aujourd'hui.
+                </p>
+                <div class="fu-hero__actions">
+                    <a class="fu-btn fu-btn--primary" href="{{ path('app_contact_new') }}">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+                            <path d="M12 5v14M5 12h14"></path>
+                        </svg>
+                        Nouveau contact
+                    </a>
+                    <a class="fu-btn fu-btn--outline" href="{{ path('app_contact_index') }}">Voir les contacts</a>
+                </div>
+            </div>
+            <div class="fu-hero__metric" aria-hidden="true">
+                <span class="fu-hero__metric-value">{{ gagnes }}</span>
+                <span class="fu-hero__metric-label">gagnés</span>
+            </div>
+        </section>
+
+        {# Indicateurs clés. #}
+        <div class="fu-stats">
+            <article class="fu-stat">
+                <span class="fu-stat__label">Total contacts</span>
+                <span class="fu-stat__value">{{ total }}</span>
+                <span class="fu-stat__foot">{{ statuts_actifs|length }} statuts actifs</span>
+            </article>
+            <article class="fu-stat">
+                <span class="fu-stat__label">Relances aujourd'hui</span>
+                <span class="fu-stat__value">{{ relances_today }}</span>
+                <span class="fu-stat__foot">À traiter dans la journée</span>
+            </article>
+            <article class="fu-stat fu-stat--alert">
+                <span class="fu-stat__label">Relances en retard</span>
+                <span class="fu-stat__value">{{ relances_late }}</span>
+                <span class="fu-stat__foot">Priorité haute</span>
+            </article>
+            <article class="fu-stat">
+                <span class="fu-stat__label">Contacts gagnés</span>
+                <span class="fu-stat__value">{{ gagnes }}</span>
+                <span class="fu-stat__foot">Affaires conclues</span>
+            </article>
+        </div>
+
+        {# Derniers contacts, présentés en cartes comme les vignettes du design. #}
+        <section class="fu-section">
+            <header class="fu-section__head">
+                <h2 class="fu-section__title">Derniers contacts</h2>
+                <a class="fu-section__link" href="{{ path('app_contact_index') }}">Tous les contacts</a>
+            </header>
+
+            <div class="fu-cards">
+                {% for contact in recent_contacts %}
+                    <article class="fu-contact-card">
+                        <div class="fu-contact-card__top fu-contact-card__top--{{ contact.statut.value }}">
+                            <span class="fu-contact-card__avatar">{{ contact.nom|slice(0, 1)|upper }}</span>
+                            <span class="fu-badge fu-badge--{{ contact.statut.value }}">{{ contact.statut.label }}</span>
+                        </div>
+                        <div class="fu-contact-card__body">
+                            <h3 class="fu-contact-card__name">
+                                <a href="{{ path('app_contact_show', {id: contact.id}) }}">{{ contact.nom }}</a>
+                            </h3>
+                            <p class="fu-contact-card__company">{{ contact.entreprise ?: 'Indépendant' }}</p>
+                            <p class="fu-contact-card__meta">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <rect x="3.5" y="5" width="17" height="15.5" rx="3"></rect>
+                                    <path d="M8 3v4M16 3v4M3.5 10h17"></path>
+                                </svg>
+                                {{ contact.dateProchaineRelance ? contact.dateProchaineRelance|date('d/m/Y') : 'Aucune relance' }}
+                            </p>
+                        </div>
+                    </article>
+                {% else %}
+                    <p class="fu-empty">Aucun contact pour le moment.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        {# Répartition par statut. #}
+        <section class="fu-section">
+            <header class="fu-section__head">
+                <h2 class="fu-section__title">Répartition par statut</h2>
+            </header>
+            <div class="fu-panel fu-panel--flat">
+                <ul class="fu-repartition">
+                    {% for statut in statuts %}
+                        {% set valeur = counts[statut.value] %}
+                        {% set pourcentage = total > 0 ? (valeur / total * 100)|round : 0 %}
+                        <li class="fu-repartition__row">
+                            <span class="fu-repartition__label">
+                                <span class="fu-dot fu-dot--{{ statut.value }}" aria-hidden="true"></span>
+                                {{ statut.label }}
+                            </span>
+                            <span class="fu-repartition__bar">
+                                <span class="fu-repartition__fill fu-repartition__fill--{{ statut.value }}" style="width: {{ pourcentage }}%"></span>
+                            </span>
+                            <span class="fu-repartition__value">{{ valeur }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    {% include 'partials/_aside.html.twig' %}
+</div>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contacts — FollowUp{% endblock %}
+
+{% block topbar_title %}<span class="app-topbar__title">Contacts</span>{% endblock %}
+
+{% block body %}
+{% set filtres_actifs = recherche != '' or statut != '' %}
+
+<div class="fu-page fu-page--with-aside">
+    <div class="fu-page__main">
+        <header class="fu-heading">
+            <div>
+                <h1 class="fu-heading__title">Contacts</h1>
+                <p class="fu-heading__sub">
+                    {{ total }} contact{{ total > 1 ? 's' : '' }} trouvé{{ total > 1 ? 's' : '' }}
+                    {%- if filtres_actifs %} avec les filtres actuels{% endif %} — page {{ page }} sur {{ pages }}.
+                </p>
+            </div>
+            <div class="fu-heading__actions">
+                <a class="fu-btn fu-btn--outline" href="{{ path('app_contact_export', app.request.query.all) }}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                        <path d="M12 3v11"></path>
+                        <path d="M8 10.5 12 14.5 16 10.5"></path>
+                        <path d="M4 18.5V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5"></path>
+                    </svg>
+                    Export CSV
+                </a>
+                <a class="fu-btn fu-btn--primary" href="{{ path('app_contact_new') }}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14"></path>
+                    </svg>
+                    Nouveau contact
+                </a>
+            </div>
+        </header>
+
+        {# Filtres : formulaire GET, conservé tel quel pour rester testable. #}
+        <form method="get" action="{{ path('app_contact_index') }}" class="fu-filters">
+            <div class="fu-filters__row fu-filters__row--search">
+                <div class="fu-filters__field fu-filters__field--search">
+                    <label class="fu-label" for="q">Recherche</label>
+                    <input class="fu-input" id="q" name="q" value="{{ recherche }}" placeholder="Nom, email ou entreprise">
+                </div>
+            </div>
+            <div class="fu-filters__row">
+                <div class="fu-filters__field">
+                    <label class="fu-label" for="statut">Statut</label>
+                    <select class="fu-select" id="statut" name="statut">
+                        <option value="">Tous</option>
+                        {% for s in statuts %}
+                            <option value="{{ s.value }}" {{ statut == s.value ? 'selected' : '' }}>{{ s.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="fu-filters__field">
+                    <label class="fu-label" for="tri">Tri</label>
+                    <select class="fu-select" id="tri" name="tri">
+                        <option value="date_creation" {{ tri == 'date_creation' ? 'selected' : '' }}>Date de création</option>
+                        <option value="date_relance" {{ tri == 'date_relance' ? 'selected' : '' }}>Date de relance</option>
+                        <option value="nom" {{ tri == 'nom' ? 'selected' : '' }}>Nom</option>
+                    </select>
+                </div>
+                <div class="fu-filters__field">
+                    <label class="fu-label" for="sens">Sens</label>
+                    <select class="fu-select" id="sens" name="sens">
+                        <option value="desc" {{ sens == 'desc' ? 'selected' : '' }}>Décroissant</option>
+                        <option value="asc" {{ sens == 'asc' ? 'selected' : '' }}>Croissant</option>
+                    </select>
+                </div>
+                <div class="fu-filters__actions">
+                    <button class="fu-btn fu-btn--primary" type="submit">Filtrer</button>
+                    <a class="fu-btn fu-btn--ghost" href="{{ path('app_contact_index') }}">Réinitialiser</a>
+                </div>
+            </div>
+        </form>
+
+        <div class="fu-panel fu-panel--flat fu-panel--table">
+            <div class="table-responsive">
+                <table class="fu-table">
+                    <thead>
+                        <tr>
+                            <th>Contact</th>
+                            <th>Entreprise</th>
+                            <th>Statut</th>
+                            <th>Relance</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for contact in contacts %}
+                        <tr>
+                            <td>
+                                <a class="fu-table__contact" href="{{ path('app_contact_show', {id: contact.id}) }}">
+                                    <span class="fu-table__avatar fu-table__avatar--{{ contact.statut.value }}">{{ contact.nom|slice(0, 1)|upper }}</span>
+                                    <span class="fu-table__identity">
+                                        <span class="fu-table__name">{{ contact.nom }}</span>
+                                        <span class="fu-table__email">{{ contact.email }}</span>
+                                    </span>
+                                </a>
+                            </td>
+                            <td class="fu-table__company">{{ contact.entreprise ?: '—' }}</td>
+                            <td><span class="fu-badge fu-badge--{{ contact.statut.value }}">{{ contact.statut.label }}</span></td>
+                            <td class="{{ contact.dateProchaineRelance and contact.dateProchaineRelance < date() ? 'text-danger' : '' }}">
+                                {{ contact.dateProchaineRelance ? contact.dateProchaineRelance|date('d/m/Y') : '—' }}
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <div class="fu-row-actions">
+                                    <a class="fu-icon-action" href="{{ path('app_contact_show', {id: contact.id}) }}" title="Voir la fiche" aria-label="Voir la fiche de {{ contact.nom }}">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                            <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"></path>
+                                            <circle cx="12" cy="12" r="2.6"></circle>
+                                        </svg>
+                                    </a>
+                                    <a class="fu-icon-action" href="{{ path('app_contact_edit', {id: contact.id}) }}" title="Modifier" aria-label="Modifier {{ contact.nom }}">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                            <path d="M4 20h4l10-10a2.5 2.5 0 0 0-4-4L4 16v4Z"></path>
+                                            <path d="M14.5 5.5 18.5 9.5"></path>
+                                        </svg>
+                                    </a>
+                                    <form method="post" action="{{ path('app_contact_delete', {id: contact.id}) }}" onsubmit="return confirm('Supprimer ce contact ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ contact.id) }}">
+                                        <button class="fu-icon-action fu-icon-action--danger" type="submit" title="Supprimer" aria-label="Supprimer {{ contact.nom }}">
+                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                                <path d="M4 7h16"></path>
+                                                <path d="M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7"></path>
+                                                <path d="M6.5 7 7.5 19a1.5 1.5 0 0 0 1.5 1.4h6a1.5 1.5 0 0 0 1.5-1.4L17.5 7"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5" class="fu-table__empty">Aucun contact ne correspond aux critères.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if pages > 1 %}
+        <nav class="fu-pagination" aria-label="Pagination">
+            <a class="fu-pagination__step {{ page <= 1 ? 'is-disabled' : '' }}"
+               href="{{ path('app_contact_index', app.request.query.all|merge({page: page - 1})) }}">Précédent</a>
+            <ul class="fu-pagination__list">
+                {% for p in 1..pages %}
+                    <li>
+                        <a class="fu-pagination__page {{ p == page ? 'is-active' : '' }}"
+                           href="{{ path('app_contact_index', app.request.query.all|merge({page: p})) }}">{{ p }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <a class="fu-pagination__step {{ page >= pages ? 'is-disabled' : '' }}"
+               href="{{ path('app_contact_index', app.request.query.all|merge({page: page + 1})) }}">Suivant</a>
+        </nav>
+        {% endif %}
+    </div>
+
+    {% include 'partials/_aside.html.twig' %}
+</div>
+{% endblock %}

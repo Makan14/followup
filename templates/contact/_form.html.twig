@@ -1,0 +1,15 @@
+{{ form_start(form, {attr: {class: 'fu-form', novalidate: 'novalidate'}}) }}
+    <div class="row g-3">
+        <div class="col-md-6">{{ form_row(form.nom) }}</div>
+        <div class="col-md-6">{{ form_row(form.email) }}</div>
+        <div class="col-md-6">{{ form_row(form.telephone) }}</div>
+        <div class="col-md-6">{{ form_row(form.entreprise) }}</div>
+        <div class="col-md-6">{{ form_row(form.statut) }}</div>
+        <div class="col-md-6">{{ form_row(form.dateProchaineRelance) }}</div>
+        <div class="col-12">{{ form_row(form.notes) }}</div>
+    </div>
+    <div class="fu-form__actions">
+        <button class="fu-btn fu-btn--primary" type="submit">Enregistrer</button>
+        <a class="fu-btn fu-btn--ghost" href="{{ path('app_contact_index') }}">Annuler</a>
+    </div>
+{{ form_end(form) }}
